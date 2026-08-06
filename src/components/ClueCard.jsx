@@ -5,6 +5,7 @@ import { Lock, Unlock, ArrowRight } from "lucide-react";
 export const ClueCard = ({ clue, onSolve }) => {
   const [inputValue, setInputValue] = useState("");
   const [isError, setIsError] = useState(false);
+  const [inputErrorMsg, setInputErrorMsg] = useState("");
   const [isSolved, setIsSolved] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
 
@@ -29,8 +30,23 @@ export const ClueCard = ({ clue, onSolve }) => {
   useEffect(() => {
     setInputValue("");
     setIsError(false);
+    setInputErrorMsg("");
     setIsSolved(false);
   }, [clue.id]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    // Check if the input contains anything other than lowercase a-z
+    if (/[^a-z]/.test(value)) {
+      setInputErrorMsg("ONLY LOWERCASE LETTERS ALLOWED (NO SPACES/SPECIAL CHARS)");
+    } else {
+      setInputErrorMsg("");
+    }
+    // Update value anyway, but strip invalid chars or just let them see the error?
+    // Let's just strip invalid chars to forcefully enforce it.
+    const sanitized = value.toLowerCase().replace(/[^a-z]/g, "");
+    setInputValue(sanitized);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -93,14 +109,17 @@ export const ClueCard = ({ clue, onSolve }) => {
         </div>
 
         {/* Input Area */}
-        <form onSubmit={handleSubmit} className={isError ? "shake" : ""} style={{ position: "relative" }}>
+        <form onSubmit={handleSubmit} className={isError ? "shake" : ""} style={{ position: "relative", width: "100%" }}>
           <input
             type="text"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={handleInputChange}
             disabled={isSolved}
             placeholder="Enter decryption key..."
             autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck="false"
             style={{
               width: "100%",
               padding: "1rem 3rem 1rem 1rem",
@@ -131,6 +150,7 @@ export const ClueCard = ({ clue, onSolve }) => {
               right: "8px",
               top: "50%",
               transform: "translateY(-50%)",
+              zIndex: 10,
               background: inputValue.trim() && !isSolved ? "var(--accent-color)" : "transparent",
               color: inputValue.trim() && !isSolved ? "var(--bg-color)" : "var(--text-secondary)",
               border: "none",
@@ -149,9 +169,14 @@ export const ClueCard = ({ clue, onSolve }) => {
         </form>
         
         {/* Feedback Message */}
-        <div style={{ height: "24px", marginTop: "0.5rem", fontSize: "0.85rem", color: isError ? "var(--error-color)" : "var(--accent-color)", fontFamily: "'Orbitron', sans-serif" }}>
+        <div style={{ height: "24px", marginTop: "0.5rem", fontSize: "0.85rem", color: inputErrorMsg || isError ? "var(--error-color)" : "var(--accent-color)", fontFamily: "'Orbitron', sans-serif" }}>
           <AnimatePresence>
-            {isError && (
+            {inputErrorMsg && !isError && !isSolved && (
+              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                {inputErrorMsg}
+              </motion.div>
+            )}
+            {isError && !inputErrorMsg && (
               <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
                 ACCESS DENIED. INVALID KEY.
               </motion.div>
