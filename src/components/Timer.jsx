@@ -2,18 +2,29 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock } from "lucide-react";
 
-export const Timer = ({ startTime, isFinished }) => {
+export const Timer = ({ accumulatedTime, sessionStartTime, isFinished }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
 
   useEffect(() => {
-    if (!startTime || isFinished) return;
+    if (isFinished) {
+      setElapsedTime(Math.floor(accumulatedTime / 1000));
+      return;
+    }
+
+    if (!sessionStartTime) return;
+
+    // Immediately set the time so there is no 1-second delay
+    setElapsedTime(
+      Math.floor((accumulatedTime + (Date.now() - sessionStartTime)) / 1000),
+    );
 
     const interval = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+      const currentSessionTime = Date.now() - sessionStartTime;
+      setElapsedTime(Math.floor((accumulatedTime + currentSessionTime) / 1000));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startTime, isFinished]);
+  }, [accumulatedTime, sessionStartTime, isFinished]);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60)

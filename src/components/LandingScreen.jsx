@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Terminal, ChevronRight, UserCircle, Loader2 } from "lucide-react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  collection,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "../firebase";
 
 export const LandingScreen = ({ onStart }) => {
@@ -38,24 +46,51 @@ export const LandingScreen = ({ onStart }) => {
 
     setIsLoading(true);
     setError("");
-
     try {
       const normalizedRollNo = rollNo.trim().toUpperCase();
+      const normalizedEmail = email.trim().toLowerCase();
+
       const docRef = doc(db, "participants", normalizedRollNo);
       const docSnap = await getDoc(docRef);
 
       let dbData;
       if (docSnap.exists()) {
         dbData = docSnap.data();
+
+        // Strict Check 1: If Roll No exists, the email MUST match.
+        if (dbData.email !== normalizedEmail) {
+          setError(
+            "This Roll Number is already registered with a different Email.",
+          );
+          setIsLoading(false);
+          return;
+        }
       } else {
+        // Strict Check 2: If Roll No is new, ensure the email isn't already used.
+        const emailQuery = query(
+          collection(db, "participants"),
+          where("email", "==", normalizedEmail),
+        );
+        const emailSnap = await getDocs(emailQuery);
+
+        if (!emailSnap.empty) {
+          setError(
+            "This Email is already registered with a different Roll Number.",
+          );
+          setIsLoading(false);
+          return;
+        }
+
+        // Both are completely new, create the record
         dbData = {
           name: name.trim(),
           rollNo: normalizedRollNo,
           department: department.trim(),
-          email: email.trim().toLowerCase(),
-          startTime: Date.now(),
+          email: normalizedEmail,
+          accumulatedTime: 0,
           currentClueIndex: 0,
           endTime: null,
+          startedAt: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
         };
         await setDoc(docRef, dbData);
       }
@@ -248,7 +283,7 @@ export const LandingScreen = ({ onStart }) => {
               type="text"
               value={rollNo}
               onChange={(e) => {
-                setRollNo(e.target.value);
+                setRollNo(e.target.value.toUpperCase());
                 if (error) setError("");
               }}
               placeholder="Roll No"
@@ -263,14 +298,12 @@ export const LandingScreen = ({ onStart }) => {
                 outline: "none",
               }}
             />
-            <input
-              type="text"
+            <select
               value={department}
               onChange={(e) => {
                 setDepartment(e.target.value);
                 if (error) setError("");
               }}
-              placeholder="Department"
               style={{
                 width: "100%",
                 padding: "0.8rem 1rem",
@@ -280,8 +313,17 @@ export const LandingScreen = ({ onStart }) => {
                 color: "var(--text-primary)",
                 fontSize: "1rem",
                 outline: "none",
+                cursor: "pointer",
+                appearance: "none"
               }}
-            />
+            >
+              <option value="" disabled>Select Department</option>
+              {["CSE", "IT", "AIDS", "ECE", "EEE", "MECH", "CIVIL", "BME", "BTECH"].map(dept => (
+                <option key={dept} value={dept} style={{ background: "#111", color: "#fff" }}>
+                  {dept}
+                </option>
+              ))}
+            </select>
             <input
               type="email"
               value={email}

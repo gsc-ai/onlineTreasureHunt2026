@@ -3,15 +3,9 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { Trophy, Mail } from "lucide-react";
 
-export const Congratulations = ({
-  finalAnswer,
-  userInfo,
-  startTime,
-  endTime,
-}) => {
-  const timeTakenMs = endTime - startTime;
-  const minutes = Math.floor(timeTakenMs / 60000);
-  const seconds = Math.floor((timeTakenMs % 60000) / 1000);
+export const Congratulations = ({ finalAnswer, userInfo, accumulatedTime }) => {
+  const minutes = Math.floor(accumulatedTime / 60000);
+  const seconds = Math.floor((accumulatedTime % 60000) / 1000);
   const formattedTime = `${minutes}m ${seconds}s`;
 
   const handleSendEmail = (e) => {

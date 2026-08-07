@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Sun, Moon } from "lucide-react";
 import { ParticleBackground } from "./components/ParticleBackground";
 import { LandingScreen } from "./components/LandingScreen";
@@ -17,8 +17,11 @@ function App() {
   const [isFinished, setIsFinished] = useState(false);
   const [theme, setTheme] = useState("dark");
   const [userInfo, setUserInfo] = useState(null);
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
+  const [accumulatedTime, setAccumulatedTime] = useState(0);
+  const [sessionStartTime, setSessionStartTime] = useState(null);
+
+  const accumulatedRef = useRef(0);
+  const sessionStartRef = useRef(null);
 
   useEffect(() => {
     if (theme === "light") {
@@ -34,11 +37,18 @@ function App() {
 
   const handleStart = (dbData) => {
     setUserInfo(dbData);
-    setStartTime(dbData.startTime);
+
+    const initialAcc = dbData.accumulatedTime || 0;
+    setAccumulatedTime(initialAcc);
+    accumulatedRef.current = initialAcc;
+
+    const now = Date.now();
+    setSessionStartTime(now);
+    sessionStartRef.current = now;
+
     setCurrentClueIndex(dbData.currentClueIndex || 0);
 
     if (dbData.endTime) {
-      setEndTime(dbData.endTime);
       setIsFinished(true);
     }
 
@@ -49,11 +59,19 @@ function App() {
     const nextIndex = currentClueIndex + 1;
     const isDone = nextIndex >= clues.length;
 
+    // Calculate current accumulated time
+    const timeSpent = Date.now() - sessionStartRef.current;
+    const newAccumulated = accumulatedRef.current + timeSpent;
+
+    accumulatedRef.current = newAccumulated;
+    sessionStartRef.current = Date.now();
+
+    setAccumulatedTime(newAccumulated);
+    setSessionStartTime(sessionStartRef.current);
+
     if (!isDone) {
       setCurrentClueIndex(nextIndex);
     } else {
-      const now = Date.now();
-      setEndTime(now);
       setIsFinished(true);
     }
 
@@ -63,16 +81,48 @@ function App() {
         if (isDone) {
           await updateDoc(docRef, {
             currentClueIndex: nextIndex,
+            accumulatedTime: newAccumulated,
             endTime: Date.now(),
           });
         } else {
-          await updateDoc(docRef, { currentClueIndex: nextIndex });
+          await updateDoc(docRef, {
+            currentClueIndex: nextIndex,
+            accumulatedTime: newAccumulated,
+          });
         }
       }
     } catch (err) {
       console.error("Failed to sync progress to DB", err);
     }
   };
+
+  useEffect(() => {
+    if (!hasStarted || isFinished || !userInfo?.rollNo) return;
+
+    const saveTime = () => {
+      if (sessionStartRef.current) {
+        const timeSpent = Date.now() - sessionStartRef.current;
+        const newAccumulated = accumulatedRef.current + timeSpent;
+
+        accumulatedRef.current = newAccumulated;
+        sessionStartRef.current = Date.now(); // reset session start for when they return
+
+        setAccumulatedTime(newAccumulated);
+        setSessionStartTime(sessionStartRef.current);
+
+        const docRef = doc(db, "participants", userInfo.rollNo);
+        updateDoc(docRef, { accumulatedTime: newAccumulated }).catch(
+          console.error,
+        );
+      }
+    };
+
+    window.addEventListener("beforeunload", saveTime);
+
+    return () => {
+      window.removeEventListener("beforeunload", saveTime);
+    };
+  }, [hasStarted, isFinished, userInfo]);
 
   return (
     <>
@@ -100,7 +150,13 @@ function App() {
         {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
       </button>
 
-      {hasStarted && <Timer startTime={startTime} isFinished={isFinished} />}
+      {hasStarted && (
+        <Timer
+          accumulatedTime={accumulatedTime}
+          sessionStartTime={sessionStartTime}
+          isFinished={isFinished}
+        />
+      )}
 
       <main
         style={{
@@ -158,8 +214,7 @@ function App() {
                 <Congratulations
                   finalAnswer={clues[clues.length - 1].answer}
                   userInfo={userInfo}
-                  startTime={startTime}
-                  endTime={endTime}
+                  accumulatedTime={accumulatedTime}
                 />
               )}
             </div>
