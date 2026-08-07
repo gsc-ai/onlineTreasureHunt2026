@@ -35,7 +35,7 @@ export const ClueCard = ({ clue, onSolve }) => {
   const handleInputChange = (e) => {
     const value = e.target.value;
 
-    if (/[^a-z]/.test(value)) {
+    if (/[^a-z0-9]/.test(value)) {
       setInputErrorMsg(
         "ONLY LOWERCASE LETTERS ALLOWED (NO SPACES/SPECIAL CHARS)",
       );
@@ -43,7 +43,7 @@ export const ClueCard = ({ clue, onSolve }) => {
       setInputErrorMsg("");
     }
 
-    const sanitized = value.toLowerCase().replace(/[^a-z]/g, "");
+    const sanitized = value.toLowerCase().replace(/[^a-z0-9]/g, "");
     setInputValue(sanitized);
   };
 
