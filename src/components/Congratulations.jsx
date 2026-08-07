@@ -3,40 +3,23 @@ import { motion } from "framer-motion";
 import Confetti from "react-confetti";
 import { Trophy, Mail } from "lucide-react";
 
-export const Congratulations = ({ finalAnswer }) => {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
-  const [rollNo, setRollNo] = useState("");
-  const [error, setError] = useState("");
+export const Congratulations = ({
+  finalAnswer,
+  userInfo,
+  startTime,
+  endTime,
+}) => {
+  const timeTakenMs = endTime - startTime;
+  const minutes = Math.floor(timeTakenMs / 60000);
+  const seconds = Math.floor((timeTakenMs % 60000) / 1000);
+  const formattedTime = `${minutes}m ${seconds}s`;
 
   const handleSendEmail = (e) => {
     e.preventDefault();
 
-    if (!name.trim()) {
-      setError("Name is required");
-      return;
-    }
-
-    if (!rollNo.trim()) {
-      setError("Roll Number is required");
-      return;
-    }
-
-    if (!email.trim()) {
-      setError("Email is required");
-      return;
-    }
-
-    if (!email.toLowerCase().endsWith("@mepcoeng.ac.in")) {
-      setError("Must be a @mepcoeng.ac.in email address");
-      return;
-    }
-
-    setError("");
-
     const subject = encodeURIComponent("Treasure hunt Answer");
     const body = encodeURIComponent(
-      `I have completed the Treasure Hunt!\n\nThe final clue answer is: ${finalAnswer}\n\nMy details:\nName: ${name}\nRoll No: ${rollNo}`,
+      `I have completed the Treasure Hunt!\n\nThe final clue answer is: ${finalAnswer}\n\nMy details:\nName: ${userInfo?.name}\nRoll No: ${userInfo?.rollNo}\nDepartment: ${userInfo?.department}\nTime Taken: ${formattedTime}`,
     );
 
     window.location.href = `mailto:gsc@mepcoeng.ac.in?subject=${subject}&body=${body}`;
@@ -153,83 +136,64 @@ export const Congratulations = ({ finalAnswer }) => {
           >
             <div
               style={{
+                marginBottom: "1rem",
+                textAlign: "left",
                 width: "100%",
                 maxWidth: "400px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.8rem",
-                position: "relative",
+                padding: "1.5rem",
+                background: "var(--border-faint)",
+                borderRadius: "8px",
+                border: "1px solid var(--border-subtle)",
               }}
             >
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="Your Full Name"
+              <p
                 style={{
-                  width: "100%",
-                  padding: "0.8rem 1rem",
-                  background: "var(--border-faint)",
-                  border: `1px solid ${error && !name.trim() ? "var(--error-color)" : "var(--border-subtle)"}`,
-                  borderRadius: "6px",
-                  color: "var(--text-primary)",
-                  fontSize: "1rem",
-                  outline: "none",
+                  margin: "0.2rem 0",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
                 }}
-              />
-              <input
-                type="text"
-                value={rollNo}
-                onChange={(e) => {
-                  setRollNo(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="Your Roll Number"
+              >
+                <strong style={{ color: "var(--text-primary)" }}>Name:</strong>{" "}
+                {userInfo?.name}
+              </p>
+              <p
                 style={{
-                  width: "100%",
-                  padding: "0.8rem 1rem",
-                  background: "var(--border-faint)",
-                  border: `1px solid ${error && !rollNo.trim() ? "var(--error-color)" : "var(--border-subtle)"}`,
-                  borderRadius: "6px",
-                  color: "var(--text-primary)",
-                  fontSize: "1rem",
-                  outline: "none",
+                  margin: "0.2rem 0",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
                 }}
-              />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  if (error) setError("");
-                }}
-                placeholder="Your @mepcoeng.ac.in email"
+              >
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Roll No:
+                </strong>{" "}
+                {userInfo?.rollNo}
+              </p>
+              <p
                 style={{
-                  width: "100%",
-                  padding: "0.8rem 1rem",
-                  background: "var(--border-faint)",
-                  border: `1px solid ${error && (!email.trim() || !email.toLowerCase().endsWith("@mepcoeng.ac.in")) ? "var(--error-color)" : "var(--border-subtle)"}`,
-                  borderRadius: "6px",
-                  color: "var(--text-primary)",
-                  fontSize: "1rem",
-                  outline: "none",
+                  margin: "0.2rem 0",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
                 }}
-              />
-              {error && (
-                <div
-                  style={{
-                    color: "var(--error-color)",
-                    fontSize: "0.8rem",
-                    marginTop: "0.2rem",
-                    textAlign: "left",
-                  }}
-                >
-                  {error}
-                </div>
-              )}
+              >
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Department:
+                </strong>{" "}
+                {userInfo?.department}
+              </p>
+              <p
+                style={{
+                  margin: "0.2rem 0",
+                  color: "var(--text-secondary)",
+                  fontSize: "0.95rem",
+                }}
+              >
+                <strong style={{ color: "var(--text-primary)" }}>
+                  Time Taken:
+                </strong>{" "}
+                <span style={{ color: "var(--accent-color)" }}>
+                  {formattedTime}
+                </span>
+              </p>
             </div>
 
             <motion.button

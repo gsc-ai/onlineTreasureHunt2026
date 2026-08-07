@@ -1,7 +1,73 @@
-import { motion } from "framer-motion";
-import { Terminal, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Terminal, ChevronRight, UserCircle, Loader2 } from "lucide-react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export const LandingScreen = ({ onStart }) => {
+  const [name, setName] = useState("");
+  const [rollNo, setRollNo] = useState("");
+  const [department, setDepartment] = useState("");
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartSequence = async (e) => {
+    e.preventDefault();
+
+    if (!name.trim()) {
+      setError("Name is required");
+      return;
+    }
+    if (!rollNo.trim()) {
+      setError("Roll Number is required");
+      return;
+    }
+    if (!department.trim()) {
+      setError("Department is required");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    if (!email.toLowerCase().endsWith("@mepcoeng.ac.in")) {
+      setError("Must be a @mepcoeng.ac.in email address");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const normalizedRollNo = rollNo.trim().toUpperCase();
+      const docRef = doc(db, "participants", normalizedRollNo);
+      const docSnap = await getDoc(docRef);
+
+      let dbData;
+      if (docSnap.exists()) {
+        dbData = docSnap.data();
+      } else {
+        dbData = {
+          name: name.trim(),
+          rollNo: normalizedRollNo,
+          department: department.trim(),
+          email: email.trim().toLowerCase(),
+          startTime: Date.now(),
+          currentClueIndex: 0,
+          endTime: null,
+        };
+        await setDoc(docRef, dbData);
+      }
+
+      onStart(dbData);
+    } catch (err) {
+      console.error(err);
+      setError("Database Error: Make sure Firebase config is set up.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div
       style={{
@@ -55,85 +121,251 @@ export const LandingScreen = ({ onStart }) => {
         </h1>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 0.8 }}
-        style={{ maxWidth: "600px", marginBottom: "3rem" }}
-      >
-        <p
-          style={{
-            fontSize: "1.1rem",
-            color: "var(--text-secondary)",
-            lineHeight: "1.6",
-            marginBottom: "1.5rem",
-          }}
-        >
-          Welcome, Code Breaker. You are about to enter a sequence of 10
-          encrypted nodes. The answer to each node is the decryption key for the
-          next.
-        </p>
-        <div
-          style={{
-            background: "var(--panel-bg)",
-            padding: "1.5rem",
-            borderRadius: "8px",
-            border: "1px solid var(--border-subtle)",
-            textAlign: "left",
-          }}
-        >
-          <h4
-            className="orbitron"
-            style={{ color: "var(--accent-color)", marginBottom: "1rem" }}
-          >
-            RULES OF ENGAGEMENT:
-          </h4>
-          <ul
-            style={{
-              color: "var(--text-secondary)",
-              paddingLeft: "1.2rem",
-              lineHeight: "1.8",
-            }}
-          >
-            <li>
-              Enter answers without spaces (e.g., "treasure hunt" →
-              "treasurehunt")
-            </li>
-            <li>No special characters required</li>
-            <li>Only small letters are allowed.</li>
-            <li>Find the final clue to claim your victory</li>
-          </ul>
-        </div>
-      </motion.div>
-
-      <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.2 }}
-        whileHover={{ scale: 1.05, boxShadow: "0 0 20px var(--accent-color)" }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onStart}
+      <div
         style={{
           display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "transparent",
-          color: "var(--accent-color)",
-          border: "2px solid var(--accent-color)",
-          padding: "1rem 3rem",
-          borderRadius: "30px",
-          fontSize: "1.2rem",
-          fontWeight: "bold",
-          fontFamily: "'Orbitron', sans-serif",
-          cursor: "pointer",
-          boxShadow: "0 0 10px var(--accent-dim)",
-          textTransform: "uppercase",
-          letterSpacing: "2px",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "center",
+          alignItems: "stretch",
+          gap: "2rem",
+          width: "100%",
+          maxWidth: "1000px",
+          marginTop: "1rem",
         }}
       >
-        INITIALIZE SEQUENCE
-        <ChevronRight size={24} />
-      </motion.button>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.8 }}
+          style={{ flex: "1 1 400px", maxWidth: "500px" }}
+        >
+          <p
+            style={{
+              fontSize: "1.1rem",
+              color: "var(--text-secondary)",
+              lineHeight: "1.6",
+              marginBottom: "1.5rem",
+            }}
+          >
+            Welcome, Code Breaker. You are about to enter a sequence of 10
+            encrypted nodes. The answer to each node is the decryption key for
+            the next.
+          </p>
+          <div
+            style={{
+              background: "var(--panel-bg)",
+              padding: "1.5rem",
+              borderRadius: "8px",
+              border: "1px solid var(--border-subtle)",
+              textAlign: "left",
+            }}
+          >
+            <h4
+              className="orbitron"
+              style={{ color: "var(--accent-color)", marginBottom: "1rem" }}
+            >
+              RULES OF ENGAGEMENT:
+            </h4>
+            <ul
+              style={{
+                color: "var(--text-secondary)",
+                paddingLeft: "1.2rem",
+                lineHeight: "1.8",
+              }}
+            >
+              <li>
+                Enter answers without spaces (e.g., "treasure hunt" →
+                "treasurehunt")
+              </li>
+              <li>No special characters required</li>
+              <li>Only small letters are allowed.</li>
+              <li>Find the final clue to claim your victory</li>
+            </ul>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
+          style={{
+            flex: "1 1 400px",
+            maxWidth: "500px",
+            background: "var(--panel-bg)",
+            padding: "2rem",
+            borderRadius: "12px",
+            border: "1px solid var(--border-subtle)",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <h3
+            className="orbitron"
+            style={{
+              color: "var(--text-primary)",
+              marginBottom: "1.5rem",
+              fontSize: "1.2rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <UserCircle size={20} />
+            PARTICIPANT DETAILS
+          </h3>
+
+          <form
+            onSubmit={handleStartSequence}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Name"
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                background: "var(--input-bg)",
+                border: `1px solid ${error && !name.trim() ? "var(--error-color)" : "var(--border-subtle)"}`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "1rem",
+                outline: "none",
+              }}
+            />
+            <input
+              type="text"
+              value={rollNo}
+              onChange={(e) => {
+                setRollNo(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Roll No"
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                background: "var(--input-bg)",
+                border: `1px solid ${error && !rollNo.trim() ? "var(--error-color)" : "var(--border-subtle)"}`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "1rem",
+                outline: "none",
+              }}
+            />
+            <input
+              type="text"
+              value={department}
+              onChange={(e) => {
+                setDepartment(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Department"
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                background: "var(--input-bg)",
+                border: `1px solid ${error && !department.trim() ? "var(--error-color)" : "var(--border-subtle)"}`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "1rem",
+                outline: "none",
+              }}
+            />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
+              placeholder="Mail ID (@mepcoeng.ac.in)"
+              style={{
+                width: "100%",
+                padding: "0.8rem 1rem",
+                background: "var(--input-bg)",
+                border: `1px solid ${error && (!email.trim() || !email.toLowerCase().endsWith("@mepcoeng.ac.in")) ? "var(--error-color)" : "var(--border-subtle)"}`,
+                borderRadius: "6px",
+                color: "var(--text-primary)",
+                fontSize: "1rem",
+                outline: "none",
+              }}
+            />
+
+            <div style={{ height: "20px" }}>
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    style={{
+                      color: "var(--error-color)",
+                      fontSize: "0.85rem",
+                      textAlign: "center",
+                    }}
+                  >
+                    {error}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <motion.button
+              whileHover={{
+                scale: 1.05,
+                boxShadow: "0 0 20px var(--accent-color)",
+              }}
+              whileTap={{ scale: 0.95 }}
+              disabled={isLoading}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                background: "transparent",
+                color: "var(--accent-color)",
+                border: "2px solid var(--accent-color)",
+                padding: "1rem 2rem",
+                borderRadius: "30px",
+                fontSize: "1.1rem",
+                fontWeight: "bold",
+                fontFamily: "'Orbitron', sans-serif",
+                cursor: isLoading ? "not-allowed" : "pointer",
+                opacity: isLoading ? 0.7 : 1,
+                boxShadow: "0 0 10px var(--accent-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                marginTop: "0.5rem",
+              }}
+            >
+              {isLoading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                >
+                  <Loader2 size={24} />
+                </motion.div>
+              ) : (
+                <>
+                  INITIALIZE SEQUENCE
+                  <ChevronRight size={24} />
+                </>
+              )}
+            </motion.button>
+          </form>
+        </motion.div>
+      </div>
     </div>
   );
 };

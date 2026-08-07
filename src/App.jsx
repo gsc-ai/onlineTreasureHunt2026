@@ -5,7 +5,10 @@ import { LandingScreen } from "./components/LandingScreen";
 import { ProgressBar } from "./components/ProgressBar";
 import { ClueCard } from "./components/ClueCard";
 import { Congratulations } from "./components/Congratulations";
+import { Timer } from "./components/Timer";
 import { clues } from "./data/clues";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "./firebase";
 import "./index.css";
 
 function App() {
@@ -13,6 +16,9 @@ function App() {
   const [currentClueIndex, setCurrentClueIndex] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [theme, setTheme] = useState("dark");
+  const [userInfo, setUserInfo] = useState(null);
+  const [startTime, setStartTime] = useState(null);
+  const [endTime, setEndTime] = useState(null);
 
   useEffect(() => {
     if (theme === "light") {
@@ -26,15 +32,45 @@ function App() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  const handleStart = () => {
+  const handleStart = (dbData) => {
+    setUserInfo(dbData);
+    setStartTime(dbData.startTime);
+    setCurrentClueIndex(dbData.currentClueIndex || 0);
+
+    if (dbData.endTime) {
+      setEndTime(dbData.endTime);
+      setIsFinished(true);
+    }
+
     setHasStarted(true);
   };
 
-  const handleSolveClue = () => {
-    if (currentClueIndex < clues.length - 1) {
-      setCurrentClueIndex((prev) => prev + 1);
+  const handleSolveClue = async () => {
+    const nextIndex = currentClueIndex + 1;
+    const isDone = nextIndex >= clues.length;
+
+    if (!isDone) {
+      setCurrentClueIndex(nextIndex);
     } else {
+      const now = Date.now();
+      setEndTime(now);
       setIsFinished(true);
+    }
+
+    try {
+      if (userInfo?.rollNo) {
+        const docRef = doc(db, "participants", userInfo.rollNo);
+        if (isDone) {
+          await updateDoc(docRef, {
+            currentClueIndex: nextIndex,
+            endTime: Date.now(),
+          });
+        } else {
+          await updateDoc(docRef, { currentClueIndex: nextIndex });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to sync progress to DB", err);
     }
   };
 
@@ -63,6 +99,8 @@ function App() {
       >
         {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
       </button>
+
+      {hasStarted && <Timer startTime={startTime} isFinished={isFinished} />}
 
       <main
         style={{
@@ -117,7 +155,12 @@ function App() {
                   onSolve={handleSolveClue}
                 />
               ) : (
-                <Congratulations finalAnswer={clues[clues.length - 1].answer} />
+                <Congratulations
+                  finalAnswer={clues[clues.length - 1].answer}
+                  userInfo={userInfo}
+                  startTime={startTime}
+                  endTime={endTime}
+                />
               )}
             </div>
             <footer
