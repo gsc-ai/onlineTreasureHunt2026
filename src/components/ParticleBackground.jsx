@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
-export const ParticleBackground = ({ theme = 'dark' }) => {
+export const ParticleBackground = ({ theme = "dark" }) => {
   const [init, setInit] = useState(false);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export const ParticleBackground = ({ theme = 'dark' }) => {
     });
   }, []);
 
-  const isLight = theme === 'light';
+  const isLight = theme === "light";
   const particleColor = isLight ? "#0077b6" : "#00ffcc";
 
   const options = useMemo(

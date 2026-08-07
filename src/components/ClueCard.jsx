@@ -9,7 +9,6 @@ export const ClueCard = ({ clue, onSolve }) => {
   const [isSolved, setIsSolved] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
 
-  // Typewriter effect
   useEffect(() => {
     setDisplayedText("");
     const fullQuestion = `${clue.id}. ${clue.question}`;
@@ -26,7 +25,6 @@ export const ClueCard = ({ clue, onSolve }) => {
     return () => clearInterval(typingInterval);
   }, [clue]);
 
-  // Reset state when clue changes
   useEffect(() => {
     setInputValue("");
     setIsError(false);
@@ -36,34 +34,34 @@ export const ClueCard = ({ clue, onSolve }) => {
 
   const handleInputChange = (e) => {
     const value = e.target.value;
-    // Check if the input contains anything other than lowercase a-z
+
     if (/[^a-z]/.test(value)) {
-      setInputErrorMsg("ONLY LOWERCASE LETTERS ALLOWED (NO SPACES/SPECIAL CHARS)");
+      setInputErrorMsg(
+        "ONLY LOWERCASE LETTERS ALLOWED (NO SPACES/SPECIAL CHARS)",
+      );
     } else {
       setInputErrorMsg("");
     }
-    // Update value anyway, but strip invalid chars or just let them see the error?
-    // Let's just strip invalid chars to forcefully enforce it.
+
     const sanitized = value.toLowerCase().replace(/[^a-z]/g, "");
     setInputValue(sanitized);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Normalize user input and actual answer
-    const normalizedInput = inputValue.trim().toLowerCase().replace(/\s+/g, '');
-    
+
+    const normalizedInput = inputValue.trim().toLowerCase().replace(/\s+/g, "");
+
     if (normalizedInput === clue.answer) {
       setIsError(false);
       setIsSolved(true);
       setTimeout(() => {
         onSolve();
-      }, 1500); // Wait for unlock animation before advancing
+      }, 1500);
     } else {
       setIsError(true);
       setInputValue("");
-      setTimeout(() => setIsError(false), 500); // Remove shake class after animation
+      setTimeout(() => setIsError(false), 500);
     }
   };
 
@@ -83,33 +81,69 @@ export const ClueCard = ({ clue, onSolve }) => {
           margin: "0 auto",
           position: "relative",
           overflow: "hidden",
-          border: isSolved ? "1px solid var(--accent-color)" : "1px solid var(--glass-border)",
-          boxShadow: isSolved ? "var(--glow-shadow)" : "0 8px 32px 0 rgba(0, 0, 0, 0.37)"
+          border: isSolved
+            ? "1px solid var(--accent-color)"
+            : "1px solid var(--glass-border)",
+          boxShadow: isSolved
+            ? "var(--glow-shadow)"
+            : "0 8px 32px 0 rgba(0, 0, 0, 0.37)",
         }}
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.5rem", borderBottom: "1px solid var(--border-subtle)", paddingBottom: "1rem" }}>
-          <h2 style={{ color: "var(--accent-color)", margin: 0, fontSize: "1.5rem" }}>NODE_{clue.id.toString().padStart(2, '0')}</h2>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: "1.5rem",
+            borderBottom: "1px solid var(--border-subtle)",
+            paddingBottom: "1rem",
+          }}
+        >
+          <h2
+            style={{
+              color: "var(--accent-color)",
+              margin: 0,
+              fontSize: "1.5rem",
+            }}
+          >
+            NODE_{clue.id.toString().padStart(2, "0")}
+          </h2>
           <motion.div
             initial={false}
-            animate={{ color: isSolved ? "var(--accent-color)" : "var(--text-secondary)" }}
+            animate={{
+              color: isSolved ? "var(--accent-color)" : "var(--text-secondary)",
+            }}
           >
             {isSolved ? <Unlock size={24} /> : <Lock size={24} />}
           </motion.div>
         </div>
-
-        {/* Question Area */}
-        <div style={{ minHeight: "100px", marginBottom: "2rem", fontSize: "1.1rem", lineHeight: "1.6" }}>
+        <div
+          style={{
+            minHeight: "100px",
+            marginBottom: "2rem",
+            fontSize: "1.1rem",
+            lineHeight: "1.6",
+          }}
+        >
           {displayedText}
           <motion.span
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
-            style={{ display: "inline-block", width: "8px", height: "1.1em", background: "var(--accent-color)", marginLeft: "4px", verticalAlign: "middle" }}
+            style={{
+              display: "inline-block",
+              width: "8px",
+              height: "1.1em",
+              background: "var(--accent-color)",
+              marginLeft: "4px",
+              verticalAlign: "middle",
+            }}
           />
         </div>
-
-        {/* Input Area */}
-        <form onSubmit={handleSubmit} className={isError ? "shake" : ""} style={{ position: "relative", width: "100%" }}>
+        <form
+          onSubmit={handleSubmit}
+          className={isError ? "shake" : ""}
+          style={{ position: "relative", width: "100%" }}
+        >
           <input
             type="text"
             value={inputValue}
@@ -131,15 +165,19 @@ export const ClueCard = ({ clue, onSolve }) => {
               fontFamily: "'Inter', sans-serif",
               outline: "none",
               transition: "all 0.3s ease",
-              boxShadow: isError ? "0 0 10px var(--error-dim)" : "none"
+              boxShadow: isError ? "0 0 10px var(--error-dim)" : "none",
             }}
             onFocus={(e) => {
-              if(!isError) e.target.style.borderColor = "var(--accent-color)";
-              if(!isError) e.target.style.boxShadow = "var(--glow-shadow)";
+              if (!isError) e.target.style.borderColor = "var(--accent-color)";
+              if (!isError) e.target.style.boxShadow = "var(--glow-shadow)";
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = isError ? "var(--error-color)" : "var(--border-subtle)";
-              e.target.style.boxShadow = isError ? "0 0 10px var(--error-dim)" : "none";
+              e.target.style.borderColor = isError
+                ? "var(--error-color)"
+                : "var(--border-subtle)";
+              e.target.style.boxShadow = isError
+                ? "0 0 10px var(--error-dim)"
+                : "none";
             }}
           />
           <button
@@ -151,8 +189,14 @@ export const ClueCard = ({ clue, onSolve }) => {
               top: "50%",
               transform: "translateY(-50%)",
               zIndex: 10,
-              background: inputValue.trim() && !isSolved ? "var(--accent-color)" : "transparent",
-              color: inputValue.trim() && !isSolved ? "var(--bg-color)" : "var(--text-secondary)",
+              background:
+                inputValue.trim() && !isSolved
+                  ? "var(--accent-color)"
+                  : "transparent",
+              color:
+                inputValue.trim() && !isSolved
+                  ? "var(--bg-color)"
+                  : "var(--text-secondary)",
               border: "none",
               borderRadius: "4px",
               width: "32px",
@@ -160,29 +204,51 @@ export const ClueCard = ({ clue, onSolve }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: inputValue.trim() && !isSolved ? "pointer" : "not-allowed",
-              transition: "all 0.3s ease"
+              cursor:
+                inputValue.trim() && !isSolved ? "pointer" : "not-allowed",
+              transition: "all 0.3s ease",
             }}
           >
             <ArrowRight size={18} />
           </button>
         </form>
-        
-        {/* Feedback Message */}
-        <div style={{ height: "24px", marginTop: "0.5rem", fontSize: "0.85rem", color: inputErrorMsg || isError ? "var(--error-color)" : "var(--accent-color)", fontFamily: "'Orbitron', sans-serif" }}>
+        <div
+          style={{
+            height: "24px",
+            marginTop: "0.5rem",
+            fontSize: "0.85rem",
+            color:
+              inputErrorMsg || isError
+                ? "var(--error-color)"
+                : "var(--accent-color)",
+            fontFamily: "'Orbitron', sans-serif",
+          }}
+        >
           <AnimatePresence>
             {inputErrorMsg && !isError && !isSolved && (
-              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
                 {inputErrorMsg}
               </motion.div>
             )}
             {isError && !inputErrorMsg && (
-              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
                 ACCESS DENIED. INVALID KEY.
               </motion.div>
             )}
             {isSolved && (
-              <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+              >
                 ACCESS GRANTED. DECRYPTING NEXT NODE...
               </motion.div>
             )}
