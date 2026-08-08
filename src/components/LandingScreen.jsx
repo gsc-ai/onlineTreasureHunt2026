@@ -212,6 +212,7 @@ export const LandingScreen = ({ onStart }) => {
               </li>
               <li>No special characters required</li>
               <li>Only small letters are allowed.</li>
+              <li>Find answers in mepcoeng.ac.in</li>
               <li>Find the final clue to claim your victory</li>
             </ul>
           </div>
