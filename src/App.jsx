@@ -59,7 +59,6 @@ function App() {
     const nextIndex = currentClueIndex + 1;
     const isDone = nextIndex >= clues.length;
 
-    // Calculate current accumulated time
     const timeSpent = Date.now() - sessionStartRef.current;
     const newAccumulated = accumulatedRef.current + timeSpent;
 
@@ -105,7 +104,7 @@ function App() {
         const newAccumulated = accumulatedRef.current + timeSpent;
 
         accumulatedRef.current = newAccumulated;
-        sessionStartRef.current = Date.now(); // reset session start for when they return
+        sessionStartRef.current = Date.now();
 
         setAccumulatedTime(newAccumulated);
         setSessionStartTime(sessionStartRef.current);
@@ -130,7 +129,7 @@ function App() {
       <button
         onClick={toggleTheme}
         style={{
-          position: "absolute",
+          position: "fixed",
           top: "1rem",
           right: "1rem",
           zIndex: 100,

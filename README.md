@@ -1,16 +1,32 @@
-# React + Vite
+# GSC Online Treasure Hunt 2026
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A modern, responsive, and real-time online treasure hunt platform developed for the Google Students Club. Built with React and Firebase, it features secure session handling, a highly accurate active-time tracking system, and a cyberpunk-inspired UI.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Cyberpunk UI:** Immersive, responsive design with glassmorphism, glowing text, and seamless Dark/Light mode toggles.
+- **Secure Authentication:** Frictionless yet secure login system using strict Roll Number and Email validation pairs. Ensures one unique session per user.
+- **Progressive Challenges:** 10 levels of cryptography, trivia, and logic puzzles.
+- **Active Session Timer:** A highly precise timer that tracks *active* participation. Safely pauses if the user disconnects or refreshes, preventing unfair advantages and keeping the competition tight.
+- **Real-Time Database Sync:** Stateless frontend paired with Firebase Firestore ensures no progress is lost on reload.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend:** React.js, Vite, Framer Motion (for animations), Lucide React (for icons)
+- **Styling:** Custom Vanilla CSS (Variables, Flexbox, Custom Media Queries)
+- **Backend & Database:** Firebase Firestore
+- **Hosting:** Firebase Hosting
 
-## Expanding the Oxlint configuration
+## Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- `src/components/LandingScreen.jsx`: Handles user onboarding, database validation, and session initialization.
+- `src/components/Timer.jsx`: Floating, fixed-position timer component calculating active elapsed milliseconds.
+- `src/App.jsx`: Main application state, clue validation logic, and Firestore synchronization.
+- `src/firebase.js`: Firebase SDK initialization.
+
+## Local Setup
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Run the development server: `npm run dev`
+4. Build for production: `npm run build`

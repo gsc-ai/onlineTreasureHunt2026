@@ -57,7 +57,6 @@ export const LandingScreen = ({ onStart }) => {
       if (docSnap.exists()) {
         dbData = docSnap.data();
 
-        // Strict Check 1: If Roll No exists, the email MUST match.
         if (dbData.email !== normalizedEmail) {
           setError(
             "This Roll Number is already registered with a different Email.",
@@ -66,7 +65,6 @@ export const LandingScreen = ({ onStart }) => {
           return;
         }
       } else {
-        // Strict Check 2: If Roll No is new, ensure the email isn't already used.
         const emailQuery = query(
           collection(db, "participants"),
           where("email", "==", normalizedEmail),
@@ -81,7 +79,6 @@ export const LandingScreen = ({ onStart }) => {
           return;
         }
 
-        // Both are completely new, create the record
         dbData = {
           name: name.trim(),
           rollNo: normalizedRollNo,
@@ -160,7 +157,7 @@ export const LandingScreen = ({ onStart }) => {
         style={{
           display: "flex",
           flexDirection: "row",
-          flexWrap: "wrap",
+          flexWrap: "wrap-reverse",
           justifyContent: "center",
           alignItems: "stretch",
           gap: "2rem",

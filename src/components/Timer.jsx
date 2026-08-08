@@ -13,7 +13,6 @@ export const Timer = ({ accumulatedTime, sessionStartTime, isFinished }) => {
 
     if (!sessionStartTime) return;
 
-    // Immediately set the time so there is no 1-second delay
     setElapsedTime(
       Math.floor((accumulatedTime + (Date.now() - sessionStartTime)) / 1000),
     );
@@ -39,9 +38,9 @@ export const Timer = ({ accumulatedTime, sessionStartTime, isFinished }) => {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       style={{
-        position: "absolute",
+        position: "fixed",
         top: "1rem",
-        right: "5rem", // next to the theme toggle
+        left: "1rem",
         zIndex: 100,
         background: "var(--glass-bg)",
         border: "1px solid var(--accent-color)",

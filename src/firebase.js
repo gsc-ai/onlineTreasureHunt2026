@@ -1,8 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// TODO: Replace this with your actual Firebase configuration object
-// You can get this from your Firebase Project Settings
 const firebaseConfig = {
   apiKey: "AIzaSyDhxClk-qupqAztSdZffnwnjoxQs-SeJ3E",
   authDomain: "treasurehunt-69626.firebaseapp.com",
