@@ -495,33 +495,100 @@ export const AdminDashboard = ({ theme, toggleTheme }) => {
           </div>
         )}
 
-        {activeTab === "department stats" && (
-          <div style={{ maxWidth: "600px" }}>
-            <h3 className="orbitron" style={{ fontSize: "1.2rem", marginBottom: "1.5rem", color: "var(--accent-color)" }}>DEPARTMENT-WISE PARTICIPATION</h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-              {["CSE", "IT", "AIDS", "ECE", "EEE", "MECH", "CIVIL", "BME", "BTECH"].map(dept => {
-                const count = deptCounts[dept] || 0;
-                const percentage = totalRegistered > 0 ? (count / totalRegistered) * 100 : 0;
-                return (
-                  <div key={dept}>
+        {activeTab === "department stats" && (() => {
+          const clueCounts = Array(10).fill(0);
+          participants.forEach(p => {
+            const idx = p.currentClueIndex;
+            if (idx >= 0 && idx < 10) {
+              clueCounts[idx]++;
+            }
+          });
+
+          return (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+              gap: "3rem"
+            }}>
+              {/* Left Column: Department Stats */}
+              <div>
+                <h3 className="orbitron" style={{ fontSize: "1.2rem", marginBottom: "1.5rem", color: "var(--accent-color)" }}>
+                  DEPARTMENT-WISE PARTICIPATION
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                  {["CSE", "IT", "AIDS", "ECE", "EEE", "MECH", "CIVIL", "BME", "BTECH"].map(dept => {
+                    const count = deptCounts[dept] || 0;
+                    const percentage = totalRegistered > 0 ? (count / totalRegistered) * 100 : 0;
+                    return (
+                      <div key={dept}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem", fontSize: "0.95rem" }}>
+                          <span style={{ fontWeight: "bold" }}>{dept}</span>
+                          <span style={{ color: "var(--text-secondary)" }}>{count} Students ({Math.round(percentage)}%)</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "4px", overflow: "hidden" }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ duration: 0.8 }}
+                            style={{ height: "100%", background: "var(--accent-color)", boxShadow: "0 0 8px var(--accent-color)" }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column: Hunt Progress Funnel */}
+              <div>
+                <h3 className="orbitron" style={{ fontSize: "1.2rem", marginBottom: "1.5rem", color: "var(--accent-color)" }}>
+                  HUNT PROGRESS FUNNEL
+                </h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
+                  {/* Completed Row */}
+                  <div>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem", fontSize: "0.95rem" }}>
-                      <span style={{ fontWeight: "bold" }}>{dept}</span>
-                      <span style={{ color: "var(--text-secondary)" }}>{count} Students ({Math.round(percentage)}%)</span>
+                      <span style={{ fontWeight: "bold", color: theme === "light" ? "#2e7d32" : "#39ff14" }}>COMPLETED HUNT 🎉</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{totalCompleted} Students ({totalRegistered > 0 ? Math.round((totalCompleted / totalRegistered) * 100) : 0}%)</span>
                     </div>
                     <div style={{ width: "100%", height: "8px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "4px", overflow: "hidden" }}>
                       <motion.div
                         initial={{ width: 0 }}
-                        animate={{ width: `${percentage}%` }}
+                        animate={{ width: `${totalRegistered > 0 ? (totalCompleted / totalRegistered) * 100 : 0}%` }}
                         transition={{ duration: 0.8 }}
-                        style={{ height: "100%", background: "var(--accent-color)", boxShadow: "0 0 8px var(--accent-color)" }}
+                        style={{ height: "100%", background: theme === "light" ? "#2e7d32" : "#39ff14", boxShadow: `0 0 8px ${theme === "light" ? "#2e7d32" : "#39ff14"}` }}
                       />
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Individual Node Funnel (From Node 10 down to Node 1) */}
+                  {Array.from({ length: 10 }).map((_, idx) => {
+                    const nodeNum = 10 - idx;
+                    const clueIdx = nodeNum - 1;
+                    const count = clueCounts[clueIdx] || 0;
+                    const percentage = totalRegistered > 0 ? (count / totalRegistered) * 100 : 0;
+                    return (
+                      <div key={nodeNum}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.3rem", fontSize: "0.95rem" }}>
+                          <span style={{ fontWeight: "bold" }}>NODE {nodeNum.toString().padStart(2, "0")}</span>
+                          <span style={{ color: "var(--text-secondary)" }}>{count} Students ({Math.round(percentage)}%)</span>
+                        </div>
+                        <div style={{ width: "100%", height: "8px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "4px", overflow: "hidden" }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${percentage}%` }}
+                            transition={{ duration: 0.8 }}
+                            style={{ height: "100%", background: theme === "light" ? "#0077b6" : "var(--accent-color)", boxShadow: `0 0 8px ${theme === "light" ? "#0077b6" : "var(--accent-color)"}` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {activeTab === "live logs" && (
           <div>
