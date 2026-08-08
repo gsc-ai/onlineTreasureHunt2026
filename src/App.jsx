@@ -134,7 +134,7 @@ function App() {
     return (
       <>
         <ParticleBackground theme={theme} />
-        <AdminDashboard />
+        <AdminDashboard theme={theme} toggleTheme={toggleTheme} />
       </>
     );
   }

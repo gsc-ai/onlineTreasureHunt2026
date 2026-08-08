@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Users, Award, Activity, Trash2, Edit2, ShieldAlert, Check, X, 
-  ChevronRight, Database, LogOut, Search, Clock
+  ChevronRight, Database, LogOut, Search, Clock, Sun, Moon
 } from "lucide-react";
 import { 
   collection, onSnapshot, doc, updateDoc, deleteDoc 
@@ -12,7 +12,7 @@ import { db } from "../firebase";
 const ADMIN_TOKEN = "GSC_ADMIN_SECRET_2026";
 const ADMIN_PASSWORD = "GSC_ADMIN_2026";
 
-export const AdminDashboard = () => {
+export const AdminDashboard = ({ theme, toggleTheme }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -195,7 +195,9 @@ export const AdminDashboard = () => {
         alignItems: "center",
         justifyContent: "center",
         minHeight: "100vh",
-        background: "radial-gradient(circle, #0e111a 0%, #05060b 100%)",
+        background: theme === "light" 
+          ? "radial-gradient(circle, #f0f4f8 0%, #d9e2ec 100%)" 
+          : "radial-gradient(circle, #0e111a 0%, #05060b 100%)",
         color: "var(--text-primary)",
         padding: "2rem"
       }}>
@@ -288,7 +290,7 @@ export const AdminDashboard = () => {
         borderBottom: "1px solid var(--border-subtle)",
         paddingBottom: "1rem"
       }}>
-        <div>
+        <div style={{ marginRight: "3rem" }}>
           <h1 className="orbitron glow-text" style={{ fontSize: "1.8rem", margin: 0 }}>
             COMMAND CENTER // ADMIN
           </h1>
@@ -296,24 +298,45 @@ export const AdminDashboard = () => {
             GOOGLE STUDENTS CLUB @ MEPCO
           </p>
         </div>
-        <button
-          onClick={() => setIsAuthenticated(false)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            padding: "0.5rem 1rem",
-            background: "transparent",
-            border: "1px solid var(--error-color)",
-            color: "var(--error-color)",
-            borderRadius: "6px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            transition: "all 0.3s ease"
-          }}
-        >
-          <LogOut size={16} /> LOGOUT
-        </button>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          <button
+            onClick={toggleTheme}
+            style={{
+              background: "var(--glass-bg)",
+              border: "1px solid var(--glass-border)",
+              color: "var(--accent-color)",
+              borderRadius: "50%",
+              width: "40px",
+              height: "40px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              boxShadow: "var(--glow-shadow)",
+              transition: "all 0.3s ease"
+            }}
+          >
+            {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button
+            onClick={() => setIsAuthenticated(false)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1rem",
+              background: "transparent",
+              border: "1px solid var(--error-color)",
+              color: "var(--error-color)",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "bold",
+              transition: "all 0.3s ease"
+            }}
+          >
+            <LogOut size={16} /> LOGOUT
+          </button>
+        </div>
       </header>
 
       {/* Stats Cards */}
@@ -339,17 +362,17 @@ export const AdminDashboard = () => {
           </div>
           <div>
             <h3 style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }}>COMPLETED HUNT</h3>
-            <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: "#39ff14" }}>{totalCompleted}</p>
+            <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: theme === "light" ? "#2e7d32" : "#39ff14" }}>{totalCompleted}</p>
           </div>
         </div>
 
         <div className="glass-panel" style={{ padding: "1.5rem", border: "1px solid var(--border-subtle)", display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div style={{ padding: "0.8rem", background: "rgba(0, 229, 255, 0.1)", borderRadius: "8px", color: "#ff9900" }}>
+          <div style={{ padding: "0.8rem", background: "rgba(0, 229, 255, 0.1)", borderRadius: "8px", color: theme === "light" ? "#d56800" : "#ff9900" }}>
             <Activity size={24} />
           </div>
           <div>
             <h3 style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }}>ACTIVE SOLVERS</h3>
-            <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: "#ff9900" }}>{totalActive}</p>
+            <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: theme === "light" ? "#d56800" : "#ff9900" }}>{totalActive}</p>
           </div>
         </div>
       </div>
@@ -422,8 +445,12 @@ export const AdminDashboard = () => {
                         <td style={{ padding: "1rem" }}>
                           <span style={{
                             padding: "0.2rem 0.5rem",
-                            background: p.currentClueIndex >= 10 ? "rgba(57, 255, 20, 0.1)" : "rgba(0, 229, 255, 0.1)",
-                            color: p.currentClueIndex >= 10 ? "#39ff14" : "var(--accent-color)",
+                            background: p.currentClueIndex >= 10 
+                              ? (theme === "light" ? "rgba(46, 125, 50, 0.1)" : "rgba(57, 255, 20, 0.1)")
+                              : (theme === "light" ? "rgba(0, 119, 182, 0.1)" : "rgba(0, 229, 255, 0.1)"),
+                            color: p.currentClueIndex >= 10 
+                              ? (theme === "light" ? "#2e7d32" : "#39ff14") 
+                              : (theme === "light" ? "#0077b6" : "var(--accent-color)"),
                             borderRadius: "4px",
                             fontSize: "0.85rem",
                             fontWeight: "bold"
@@ -600,10 +627,10 @@ export const AdminDashboard = () => {
                     value={editForm.department}
                     onChange={(e) => setEditForm(prev => ({ ...prev, department: e.target.value }))}
                     required
-                    style={{ width: "100%", padding: "0.7rem", background: "var(--input-bg)", border: "1px solid var(--border-subtle)", borderRadius: "6px", color: "#fff", outline: "none" }}
+                    style={{ width: "100%", padding: "0.7rem", background: "var(--input-bg)", border: "1px solid var(--border-subtle)", borderRadius: "6px", color: "var(--text-primary)", outline: "none" }}
                   >
                     {["CSE", "IT", "AIDS", "ECE", "EEE", "MECH", "CIVIL", "BME", "BTECH"].map(dept => (
-                      <option key={dept} value={dept} style={{ background: "#111" }}>{dept}</option>
+                      <option key={dept} value={dept} style={{ background: theme === "light" ? "#fff" : "#111", color: "var(--text-primary)" }}>{dept}</option>
                     ))}
                   </select>
                 </div>
