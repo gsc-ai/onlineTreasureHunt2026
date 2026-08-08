@@ -172,18 +172,41 @@ export const LandingScreen = ({ onStart }) => {
           transition={{ duration: 1, delay: 0.8 }}
           style={{ flex: "1 1 400px", maxWidth: "500px" }}
         >
-          <p
+          <div
             style={{
-              fontSize: "1.1rem",
-              color: "var(--text-secondary)",
+              fontSize: "1.2rem",
               lineHeight: "1.6",
               marginBottom: "1.5rem",
+              padding: "1.2rem",
+              borderRadius: "12px",
+              background: "var(--panel-bg)",
+              border: "1px dashed var(--accent-color)",
+              boxShadow: "0 0 15px var(--accent-dim)",
+              textAlign: "center",
+              fontFamily: "'Orbitron', sans-serif",
+              letterSpacing: "1px"
             }}
           >
-            Welcome, Code Breaker. You are about to enter a sequence of 10
-            encrypted nodes. The answer to each node is the decryption key for
-            the next.
-          </p>
+            FIND ANSWERS IN:{" "}
+            <motion.a
+              href="https://www.mepcoeng.ac.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              animate={{ opacity: [1, 0.4, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              style={{
+                color: "var(--accent-color)",
+                textDecoration: "none",
+                fontWeight: "bold",
+                borderBottom: "2px solid var(--accent-color)",
+                paddingBottom: "2px",
+                textShadow: "0 0 10px var(--accent-dim)",
+                cursor: "pointer"
+              }}
+            >
+              mepcoeng.ac.in
+            </motion.a>
+          </div>
           <div
             style={{
               background: "var(--panel-bg)",
