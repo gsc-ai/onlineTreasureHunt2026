@@ -131,7 +131,7 @@ function App() {
     };
   }, [hasStarted, isFinished, userInfo]);
 
-  const MAINTENANCE_MODE = true;
+  const MAINTENANCE_MODE = false;
 
   if (isAdminRoute) {
     return (
