@@ -1,0 +1,29 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /participants/{rollNo} {
+      allow read: if true;
+      
+      // New users must start at 0
+      allow create: if request.resource.data.accumulatedTime == 0
+                    && request.resource.data.currentClueIndex == 0;
+                    
+      // Allow updates if it's standard gameplay, OR if the Admin Token is supplied in the write
+      allow update: if (
+                      // User gameplay updates
+                      request.resource.data.accumulatedTime >= resource.data.accumulatedTime
+                      && (request.resource.data.currentClueIndex == resource.data.currentClueIndex 
+                          || request.resource.data.currentClueIndex == resource.data.currentClueIndex + 1)
+                      && request.resource.data.email == resource.data.email
+                      && request.resource.data.rollNo == resource.data.rollNo
+                      && request.resource.data.startedAt == resource.data.startedAt
+                    ) || (
+                      // Admin edits
+                      request.resource.data.adminToken == "GSC_ADMIN_SECRET_2026"
+                    );
+                    
+      // Delete only allowed if the document was flagged for deletion by the Admin first
+      allow delete: if resource.data.pendingDelete == true;
+    }
+  }
+}

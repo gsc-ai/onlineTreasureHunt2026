@@ -9,6 +9,7 @@ import { Timer } from "./components/Timer";
 import { clues } from "./data/clues";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
+import { AdminDashboard } from "./components/AdminDashboard";
 import "./index.css";
 
 function App() {
@@ -19,9 +20,15 @@ function App() {
   const [userInfo, setUserInfo] = useState(null);
   const [accumulatedTime, setAccumulatedTime] = useState(0);
   const [sessionStartTime, setSessionStartTime] = useState(null);
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   const accumulatedRef = useRef(0);
   const sessionStartRef = useRef(null);
+
+  useEffect(() => {
+    const isadmin = window.location.pathname === "/admin" || window.location.hostname.includes("admin");
+    setIsAdminRoute(isadmin);
+  }, []);
 
   useEffect(() => {
     if (theme === "light") {
@@ -122,6 +129,15 @@ function App() {
       window.removeEventListener("beforeunload", saveTime);
     };
   }, [hasStarted, isFinished, userInfo]);
+
+  if (isAdminRoute) {
+    return (
+      <>
+        <ParticleBackground theme={theme} />
+        <AdminDashboard />
+      </>
+    );
+  }
 
   return (
     <>

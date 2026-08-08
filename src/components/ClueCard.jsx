@@ -47,12 +47,18 @@ export const ClueCard = ({ clue, onSolve }) => {
     setInputValue(sanitized);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const normalizedInput = inputValue.trim().toLowerCase().replace(/\s+/g, "");
 
-    if (normalizedInput === clue.answer) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(normalizedInput);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (hashHex === clue.hash) {
       setIsError(false);
       setIsSolved(true);
       setTimeout(() => {

@@ -95,7 +95,7 @@ export const LandingScreen = ({ onStart }) => {
       onStart(dbData);
     } catch (err) {
       console.error(err);
-      setError("Database Error: Make sure Firebase config is set up.");
+      setError(`Database Error: ${err.message || err.toString()}`);
     } finally {
       setIsLoading(false);
     }
