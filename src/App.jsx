@@ -23,6 +23,9 @@ function App() {
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
+  const targetLaunchTime = new Date("2026-08-09T09:00:00+05:30").getTime();
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState(Date.now() < targetLaunchTime);
+
   const accumulatedRef = useRef(0);
   const sessionStartRef = useRef(null);
 
@@ -30,6 +33,22 @@ function App() {
     const isadmin = window.location.pathname === "/admin" || window.location.hostname.includes("admin");
     setIsAdminRoute(isadmin);
   }, []);
+
+  useEffect(() => {
+    if (Date.now() >= targetLaunchTime) {
+      setIsMaintenanceActive(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (Date.now() >= targetLaunchTime) {
+        setIsMaintenanceActive(false);
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [targetLaunchTime]);
 
   useEffect(() => {
     if (theme === "light") {
@@ -131,8 +150,6 @@ function App() {
     };
   }, [hasStarted, isFinished, userInfo]);
 
-  const MAINTENANCE_MODE = false;
-
   if (isAdminRoute) {
     return (
       <>
@@ -142,7 +159,7 @@ function App() {
     );
   }
 
-  if (MAINTENANCE_MODE) {
+  if (isMaintenanceActive) {
     return (
       <>
         <ParticleBackground theme={theme} />
@@ -168,7 +185,7 @@ function App() {
         >
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
-        {/* <MaintenanceScreen theme={theme} /> */}
+        <MaintenanceScreen theme={theme} />
       </>
     );
   }
