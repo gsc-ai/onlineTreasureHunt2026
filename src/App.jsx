@@ -10,6 +10,7 @@ import { clues } from "./data/clues";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "./firebase";
 import { AdminDashboard } from "./components/AdminDashboard";
+import { MaintenanceScreen } from "./components/MaintenanceScreen";
 import "./index.css";
 
 function App() {
@@ -130,11 +131,44 @@ function App() {
     };
   }, [hasStarted, isFinished, userInfo]);
 
+  const MAINTENANCE_MODE = true;
+
   if (isAdminRoute) {
     return (
       <>
         <ParticleBackground theme={theme} />
         <AdminDashboard theme={theme} toggleTheme={toggleTheme} />
+      </>
+    );
+  }
+
+  if (MAINTENANCE_MODE) {
+    return (
+      <>
+        <ParticleBackground theme={theme} />
+        <button
+          onClick={toggleTheme}
+          style={{
+            position: "fixed",
+            top: "1rem",
+            right: "1rem",
+            zIndex: 100,
+            background: "var(--glass-bg)",
+            border: "1px solid var(--glass-border)",
+            color: "var(--accent-color)",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "var(--glow-shadow)",
+          }}
+        >
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+        <MaintenanceScreen theme={theme} />
       </>
     );
   }
