@@ -168,7 +168,7 @@ function App() {
         >
           {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
         </button>
-        <MaintenanceScreen theme={theme} />
+        {/* <MaintenanceScreen theme={theme} /> */}
       </>
     );
   }
