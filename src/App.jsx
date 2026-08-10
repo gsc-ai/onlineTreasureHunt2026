@@ -150,11 +150,44 @@ function App() {
     };
   }, [hasStarted, isFinished, userInfo]);
 
+  const EVENT_ENDED = true;
+
   if (isAdminRoute) {
     return (
       <>
         <ParticleBackground theme={theme} />
         <AdminDashboard theme={theme} toggleTheme={toggleTheme} />
+      </>
+    );
+  }
+
+  if (EVENT_ENDED) {
+    return (
+      <>
+        <ParticleBackground theme={theme} />
+        <button
+          onClick={toggleTheme}
+          style={{
+            position: "fixed",
+            top: "1rem",
+            right: "1rem",
+            zIndex: 100,
+            background: "var(--glass-bg)",
+            border: "1px solid var(--glass-border)",
+            color: "var(--accent-color)",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "var(--glow-shadow)",
+          }}
+        >
+          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+        <MaintenanceScreen theme={theme} isEnded={true} />
       </>
     );
   }

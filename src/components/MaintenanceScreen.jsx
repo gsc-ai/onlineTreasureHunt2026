@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ShieldAlert, Clock, Calendar, Link as LinkIcon } from "lucide-react";
+import { ShieldAlert, Clock, Calendar, Link as LinkIcon, Award } from "lucide-react";
 
-export const MaintenanceScreen = ({ theme }) => {
+export const MaintenanceScreen = ({ theme, isEnded }) => {
   // Target: Sunday, August 9, 2026 at 09:00 AM IST
   const targetDate = new Date("2026-08-09T09:00:00+05:30").getTime();
   
@@ -74,17 +74,17 @@ export const MaintenanceScreen = ({ theme }) => {
               alignItems: "center",
               gap: "0.5rem",
               padding: "0.4rem 1rem",
-              background: "rgba(0, 229, 255, 0.08)",
-              border: "1px solid var(--accent-color)",
-              color: "var(--accent-color)",
+              background: isEnded ? "rgba(255, 51, 102, 0.08)" : "rgba(0, 229, 255, 0.08)",
+              border: isEnded ? "1px solid var(--error-color)" : "1px solid var(--accent-color)",
+              color: isEnded ? "var(--error-color)" : "var(--accent-color)",
               borderRadius: "20px",
               fontSize: "0.85rem",
               fontFamily: "'Orbitron', sans-serif",
               letterSpacing: "1px",
-              boxShadow: "var(--glow-shadow)"
+              boxShadow: isEnded ? "0 0 20px rgba(255, 51, 102, 0.2)" : "var(--glow-shadow)"
             }}
           >
-            <ShieldAlert size={14} /> SIGNAL SECURED // PRE-LAUNCH
+            <ShieldAlert size={14} /> {isEnded ? "SIGNAL TERMINATED // EVENT CONCLUDED" : "SIGNAL SECURED // PRE-LAUNCH"}
           </motion.div>
         </div>
 
@@ -102,50 +102,70 @@ export const MaintenanceScreen = ({ theme }) => {
           lineHeight: "1.6",
           color: "var(--text-secondary)"
         }}>
-          The online event conducted by the <strong>Google Students Club</strong> will go live on 
-          <span style={{ color: "var(--accent-color)", display: "block", marginTop: "0.5rem", fontWeight: "bold" }}>
-            Sunday, 09/08/2026 from 09:00 AM onwards
-          </span>
+          {isEnded ? (
+            <>
+              The Google Students Club Online Treasure Hunt has ended.
+              <span style={{ color: "var(--accent-color)", display: "block", marginTop: "0.5rem", fontWeight: "bold" }}>
+                Thank you for participating!
+              </span>
+            </>
+          ) : (
+            <>
+              The online event conducted by the <strong>Google Students Club</strong> will go live on 
+              <span style={{ color: "var(--accent-color)", display: "block", marginTop: "0.5rem", fontWeight: "bold" }}>
+                Sunday, 09/08/2026 from 09:00 AM onwards
+              </span>
+            </>
+          )}
         </div>
 
         {/* Countdown Area */}
-        {!isLauched ? (
-          <div>
-            <h3 className="orbitron" style={{ fontSize: "1rem", color: "var(--accent-color)", marginBottom: "1rem", letterSpacing: "2px" }}>
-              TIME REMAINING
-            </h3>
-            <div style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "1.2rem",
-              marginBottom: "2rem"
-            }}>
-              {[
-                { label: "DAYS", val: timeLeft.days },
-                { label: "HOURS", val: timeLeft.hours },
-                { label: "MINS", val: timeLeft.minutes },
-                { label: "SECS", val: timeLeft.seconds }
-              ].map((t, idx) => (
-                <div key={idx} style={{
-                  minWidth: "75px",
-                  padding: "0.8rem",
-                  background: "rgba(255, 255, 255, 0.02)",
-                  border: "1px solid var(--border-faint)",
-                  borderRadius: "8px"
-                }}>
-                  <div className="orbitron" style={{ fontSize: "1.8rem", fontWeight: "bold", color: "var(--text-primary)" }}>
-                    {t.val.toString().padStart(2, "0")}
+        {!isEnded ? (
+          !isLauched ? (
+            <div>
+              <h3 className="orbitron" style={{ fontSize: "1rem", color: "var(--accent-color)", marginBottom: "1rem", letterSpacing: "2px" }}>
+                TIME REMAINING
+              </h3>
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1.2rem",
+                marginBottom: "2rem"
+              }}>
+                {[
+                  { label: "DAYS", val: timeLeft.days },
+                  { label: "HOURS", val: timeLeft.hours },
+                  { label: "MINS", val: timeLeft.minutes },
+                  { label: "SECS", val: timeLeft.seconds }
+                ].map((t, idx) => (
+                  <div key={idx} style={{
+                    minWidth: "75px",
+                    padding: "0.8rem",
+                    background: "rgba(255, 255, 255, 0.02)",
+                    border: "1px solid var(--border-faint)",
+                    borderRadius: "8px"
+                  }}>
+                    <div className="orbitron" style={{ fontSize: "1.8rem", fontWeight: "bold", color: "var(--text-primary)" }}>
+                      {t.val.toString().padStart(2, "0")}
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem", letterSpacing: "1px" }}>
+                      {t.label}
+                    </div>
                   </div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem", letterSpacing: "1px" }}>
-                    {t.label}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="orbitron" style={{ fontSize: "1.3rem", color: "#39ff14", marginBottom: "2rem", letterSpacing: "2px" }}>
+              EVENT IS CURRENTLY LIVE! REFRESH THE PAGE TO BEGIN.
+            </div>
+          )
         ) : (
-          <div className="orbitron" style={{ fontSize: "1.3rem", color: "#39ff14", marginBottom: "2rem", letterSpacing: "2px" }}>
-            EVENT IS CURRENTLY LIVE! REFRESH THE PAGE TO BEGIN.
+          <div style={{ marginBottom: "2rem" }}>
+            <Award size={48} style={{ color: "var(--accent-color)", margin: "0 auto 1rem", display: "block" }} />
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem" }}>
+              We appreciate your awesome response and energy. The final results are being processed.
+            </p>
           </div>
         )}
 
